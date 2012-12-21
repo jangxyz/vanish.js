@@ -1,5 +1,6 @@
 (function() {
     var $ = $;
+
     //
     var module = window['xyz-vanish'] || {
         bgcolorHistory: {},
@@ -75,8 +76,6 @@
         $('body *').animate({opacity: 1}, 'fast');
     }
 
-
-
     function revertEveryHighlights() {
         var prevPaths = Object.keys(module.bgcolorHistory);
         for (var i in prevPaths) {
@@ -106,10 +105,11 @@
             console.log('vanish except:', module.alone);
             //
             revertEveryHighlights();
-            $('body *').unbind('mouseenter', highlightHoveredElement);
+            $('body *').unbind('mouseenter.xyz-vanish.highlighOnHover');
         } else {
             reappear(module.alone);
             //
+            $('body *').bind('mouseenter.xyz-vanish.highlighOnHover', highlightHoveredElement);
             module.alone = null;
         }
         return false;
@@ -117,17 +117,15 @@
 
 
     function installVanish() {
-        assertJquery(function() {
-            // highlight on hover
-            $('body *').bind('mouseenter', highlightHoveredElement);
+        // highlight on hover
+        $('body *').bind('mouseenter.xyz-vanish.highlighOnHover', highlightHoveredElement);
 
-            // vanish on click
-            module.alone = null;
-            $('body *').click(vanishOnClick);
+        // vanish on click
+        module.alone = null;
+        $('body *').bind('click.xyz-vanish.vanishOnClick', vanishOnClick);
 
-            // installed.
-            module.installed = true;
-        });
+        // installed.
+        module.installed = true;
     }
 
     function uninstallVanish() {
@@ -136,23 +134,29 @@
             module.insertedjQuery.parentNode.removeChild(module.insertedjQuery);
         }
 
+        // reset highlight
+        $('body *').unbind('mouseenter.xyz-vanish.highlighOnHover');
+
         // reset click
-        $('body *').unbind('click', vanishOnClick);
+        $('body *').unbind('click.xyz-vanish.vanishOnClick');
 
         module.installed = false;
         console.log('uninstalled');
     }
 
-    (function main() {
-        if (module.installed) {
-            uninstallVanish();
-            if (module.alone) {
-                reappear(module.alone);
+    function main() {
+        assertJquery(function() {
+            if (module.installed) {
+                uninstallVanish();
+                if (module.alone) {
+                    reappear(module.alone);
+                }
+                delete window['xyz-vanish'];
+            } else {
+                installVanish();
+                window['xyz-vanish'] = module;
             }
-            delete window['xyz-vanish'];
-        } else {
-            installVanish();
-            window['xyz-vanish'] = module;
-        }
-    })();
+        });
+    }
+    main();
 })();
