@@ -9,6 +9,10 @@
         installed: false
     };
 
+    function notice(_arguments) {
+        _arguments = Array.prototype.slice.apply(arguments);
+        console.log.apply(console, _arguments);
+    }
 
     function assertJquery(cb) {
         if (typeof jQuery === 'undefined') {
@@ -65,15 +69,21 @@
 
 
     function vanishExcept(el) {
-        var victims = $(hitlist(el));
+        var victims = hitlist(el);
         // disappear!
-        victims.animate({opacity: 0}, 'slow');
+        $(victims)
+            .addClass('xyz-vanish-victim')
+            .animate({opacity: 0}, 'slow');
 
-        return getPathTo(el);
+        var path = getPathTo(el);
+        notice(victims.length, 'elements vanished except:', path);
+        return path;
     }
 
-    function reappear() {
-        $('body *').animate({opacity: 1}, 'fast');
+    function reappear(path) {
+        $('body .xyz-vanish-victim')
+            .animate({opacity: 1}, 'fast')
+            .removeClass('xyz-vanish-victim');
     }
 
     function revertEveryHighlights() {
@@ -102,7 +112,6 @@
     function vanishOnClick(e) {
         if (module.alone === null) {
             module.alone = vanishExcept(e.target);
-            console.log('vanish except:', module.alone);
             //
             revertEveryHighlights();
             $('body *').unbind('mouseenter.xyz-vanish.highlighOnHover');
@@ -142,7 +151,7 @@
         $('body *').unbind('click.xyz-vanish.vanishOnClick');
 
         module.installed = false;
-        console.log('uninstalled');
+        notice('uninstalled vanish');
     }
 
     function main() {
