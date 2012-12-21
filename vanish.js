@@ -135,6 +135,7 @@
         }
 
         // reset highlight
+        revertEveryHighlights();
         $('body *').unbind('mouseenter.xyz-vanish.highlighOnHover');
 
         // reset click
