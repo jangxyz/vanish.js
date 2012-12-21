@@ -137,13 +137,14 @@
         }
 
         // reset click
+        console.log('vanishOnClick:', vanishOnClick);
         $('body *').unbind('click', vanishOnClick);
 
         module.installed = false;
         console.log('uninstalled');
     }
 
-    (function main() {
+    function main() {
         if (module.installed) {
             uninstallVanish();
             if (module.alone) {
@@ -154,5 +155,6 @@
             installVanish();
             window['xyz-vanish'] = module;
         }
-    })();
+    }
+    main();
 })();
